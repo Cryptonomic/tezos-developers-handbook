@@ -1,2 +1,111 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>The Tezos Developers' Handbook</title>
+  </head>
+  <body>
+    <h1>The Tezos Developers' Handbook</h1>
+
+    <h2>Table of contents</h2>
+    <ul>
+      <li>
+        <a href="#introduction">Introduction</a>
+      </li>
+      <li>
+        <a href="#stack">The Cryptonomic Stack</a>
+        <ul>
+          <li><a href="#stack-nc">Nautilus Cloud</a></li>
+          <li><a href="#stack-conseil">Conseil</a></li>
+          <li><a href="#stack-conseiljs">ConseilJS</a></li>
+          <li><a href="#stack-galleon">Galleon</a></li>
+          <li><a href="#stack-arronax">Arronax</a></li>
+          <li><a href="#stack-mininax">Mininax</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#tutorials">Tutorials</a>
+        <ul>
+          <li><a href="#tutorials-twentymins">The twenty minute tour</a></li>
+          <li><a href="#tutorials-fa1.2">Deploying an FA1.2 fungible token</a></li>
+          <li><a href="#tutorials-conseil">Analyzing blockchain data using Conseil</a></li>
+          <li><a href="#tutorials-bakerregistry">Interacting with the Tezos baker registry</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#documentation">More Documentation</a>
+      </li>
+    </ul>
+    <hr/>
+
+    <h2><a name="introduction">Introduction</a></h2>
+    <p>
+      Dear reader, as of early 2020, the <a href="https://developers.tezos.com/">Tezos platform</a> is becoming mature enough that functional and resilient applications can be built with it. <a href="https://cryptonomic.tech/">Cryptonomic</a> has been building tools for Tezos since late 2017 with the intention of creating a seamless end to end experience for Tezos developers. In this handbook, we provide a variety of resources, tutorials and overviews that will help any blockchain developer get up and running quickly with the Tezos platform.
+    </p>
+    <p>
+      The quickest way to become productive is to first read the Cryptonomic Stack section followed by the twenty minute walkthrough tutorial. More detailed information about the tools mentioned can be found in the Documentation section. Support is available through <a href="https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech">Matrix / Riot</a> and <a href="mailto:support@cryptonomic.tech">email</a>. 
+    </p>
+    <p>
+      This handbook is a living document so it will keep evolving as we add new content, enhance our tools and add new capabilities. Of course, we are also highly receptive to user feedback as expect us to add more content in response to user requests. Speaking of, if you have any ideas for content we should add here, do not hesitate to <a href="https://github.com/Cryptonomic/tezos-developers-handbook/issues">open a GitHub issue</a>.
+    </p>
+    <hr/>
+
+    <h2><a name="stack">The Cryptonomic Stack</a></h2>
+    <p>
+      The Cryptonomic stack consists of several tools which are build to work seamlessly together. Odds are if you start working with any one of the tools, the rest will be easy for you to adopt. 
+    </p>
+    <h3><a name="stack-nc">Nautilus Cloud</a></h3>
+    <p>
+      Setting up a development environment for blockchains is notoriously hard. It can be quite arduous and time-consuming to stand up blockchain and indexer nodes. Worry not, we do the hard work so you can focus purely on your work. <a href="https://nautilus.cloud/">Nautilus Cloud</a> provides hosted Tezos and Conseil nodes so you can use them and get started right away. Once your application is ready for production, you can decide how decentralized you want to be and either continue using Nautilus Cloud or stand up your own nodes. 
+    </p>
+    <p>
+      If you are an Ethereum developer, you can simply think of Nautilus Cloud as an equivalent of Infura, except instead of simply offering you blockchain nodes, Nautilus Cloud also offers indexers and others services to make your dApp more powerful and your life much easier.
+    </p>
+    <h3><a name="stack-conseil">Conseil</a></h3>
+    <p>
+      Pulling data out of blockchains can also be notoriously difficult. Many developers choose to pull data out of their blockchain nodes and store it in a database for easy querying. This is call indexing. <a href="https://github.com/Cryptonomic/Conseil">Conseil</a> serves as an indexer for the Tezos blockchain. It can only provide blockchain data using REST but also provide metadata to help developers identify and pull the data they need. Nautilus Cloud provides access to Conseil indexes for major Tezos network. See the Tutorials section for guides on querying data with Conseil. Conseil is written in the functional style using the Scala programming language.
+    </p>
+    <h3><a name="stack-conseiljs">ConseilJS</a></h3>
+    <p>
+      Most front end developers these days like to work with Node libraries. <a href="https://github.com/Cryptonomic/ConseilJS">ConseilJS</a> is an <a href="https://www.npmjs.com/package/conseiljs">NPM library</a> written in TypeScript that allows developers to read from and write to the Tezos blockchain. A variety of applications can be built using ConseilJS. At Cryptonomic, we have used it to build Galleon, Arronax and Mininax, among other projects. ConseilJS is also available as a <a href="https://www.jsdelivr.com/package/npm/conseiljs">standalone JavaScript file</a>. 
+    </p>
+    <p>
+      For Ethereum developers, ConseilJS is a rough analogue of web3.js but supports a greater class of functionality, including key management, hardware wallet connectivity and blockchain data queries. 
+    </p>
+    <h3><a name="stack-galleon">Galleon</a></h3>
+    <p>
+      <a href="https://galleon-wallet.tech">Galleon</a> is a wallet for the Tezos platform. It works equally well with real tez from mainnet and play tez from the major testnet faucets. Developers will find Galleon useful for deploying and invoking smart contracts without writing front end code. This is especially is useful if you are simply trying to prototype smart contract code using a tool like <a href="https://smartpy.io">SmartPy</a>. 
+    </p>
+    <h3><a name="stack-arronax">Arronax</a></h3>
+    <p>
+      Block explorers can be fairly limiting if you are not a regular wallet users. Blockchain developers need to run rich queries to check on their application's behavior, debug issues and get analytics information about app usage. This is why we created <a href="https://arronax.io/">Arronax</a> using Conseil as its data provider. Arronax will allow you to run queries and generate reports tailored to your specific needs. It will help you find your top users, find your biggest transactions and most popular smart contract entry points. Go ahead and give <a href="https://arronax.io/">Arronax</a> a spin right now!
+    </p>
+    <h3><a name="stack-mininax">Mininax</a></h3>
+    <p>
+      Sometimes you just want to keep things simple and use a good old block explorer. We built <a href="https://mininax.io/">Mininax</a> as a retro mininax explorer serving as an entrypoint into Arronax as a fun summer project but now it's evolving into a full-fledged explorer in its own right. Soon, there will be features which will make viewing and investigating smart contracts much more intuitive. 
+    </p>
+    <hr/>
+
+    <h2><a name="tutorials">Tutorials</a></h2>
+    <h3><a name="tutorials-twentymins">The twenty minute tour</a></h3>
+    <p>
+      Coming soon..
+    </p>
+    <h3><a name="tutorials-fa1.2">Deploying an FA1.2 fungible token</a></h3>
+    <p>
+      Coming soon..
+    </p>
+    <h3><a name="tutorials-conseil">Analyzing blockchain data using Conseil</a></h3>
+    <p>
+      Visit the <a href="https://github.com/Cryptonomic/Conseil/wiki/Tutorial:-Querying-for-Tezos-alphanet-data-using-the-v2-API">tutorial</a> on the Conseil wiki.
+    </p>
+    <h3><a name="tutorials-bakerregistry">Interacting with the Tezos baker registry</a></h3>
+    <p>
+      Coming soon..
+    </p>
+    <hr/>
+    
+    <h2><a name="documentation">More Documentation</a></h2>
+    
+  </body>
 </html>
