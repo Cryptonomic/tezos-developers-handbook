@@ -27,7 +27,7 @@
         <a href="#tutorials">Tutorials</a>
         <ul>
           <li><a href="#tutorials-twentymins">The twenty minute tour</a></li>
-          <li><a href="#tutorials-fa1.2">Deploying an FA1.2 fungible token</a></li>
+          <li><a href="#tutorials-fa1.2">Deploying an FA1.2 fungible token contract</a></li>
           <li><a href="#tutorials-conseil">Analyzing blockchain data using Conseil</a></li>
           <li><a href="#tutorials-bakerregistry">Interacting with the Tezos baker registry</a></li>
         </ul>
@@ -89,9 +89,114 @@
     <h2><a name="tutorials">Tutorials</a></h2>
     <h3><a name="tutorials-twentymins">The twenty minute tour</a></h3>
     <p>
-      Coming soon..
+      In this tutorial, we are going to get a quick taste of the Cryptonomic stack by deploying and examining a simple Tezos smart contract. 
     </p>
-    <h3><a name="tutorials-fa1.2">Deploying an FA1.2 fungible token</a></h3>
+    <p>
+        We need to get access to the blockchain and its data by visiting <a href="https://nautilus.cloud">Nautilus Cloud</a> and logging in with our GitHub account. Once you are logged in you should see something like this:
+    </p>
+    <img src="images/tutorials-twentymins-nc.png"></img>
+    <p>
+        Nautilus Cloud offers two environments, 'prod' which runs against the Tezos mainnet and 'dev' which runs against a testnet. For each environment, we get the URL to use to access Conseil and Tezos nodes along with the API keys we need to use. In this tutorial, we will be working with a testnet so let's note the URLs and the Conseil API key (in this case 'ab682065-864a-4f11-bc77-0ef4e9493fa1').
+    </p>
+    <p>
+        Now we need to get some testnet funds with which we can originate a contract and play with it. Let's download the <a href="https://galleon-wallet.tech/">Galleon wallet</a> and install it on our system. Once the wallet is up, we'll need to click on 'Settings' on the top right and make the wallet point to the testnet by changing the settings for both the Tezos and Conseil nodes:
+    </p>
+    <img src="images/tutorials-twentymins-galleon-settings.png"></img>
+    <p>
+        Let's click on "Back to Wallet" and then "Create new Wallet" to get a new wallet going. Pick a file location and provide a strong password as requested. On the next screen, we'll use the "Import Fundraiser Wallet" option to import a free faucet account with tez for us to play with. Visit the <a href="https://faucet.tzalpha.net/">Tezos Faucet</a> and download a JSON document. The document should look something like this:
+    </p>
+    <pre>
+        {
+            "mnemonic": [
+                "avocado",
+                "settle",
+                "lounge",
+                "midnight",
+                "frozen",
+                "fortune",
+                "caution",
+                "conduct",
+                "turtle",
+                "slim",
+                "repair",
+                "venture",
+                "short",
+                "idea",
+                "dawn"
+            ],
+            "secret": "774ee65fd9cc68c1368e921fd3c5ef0a9368701e",
+            "amount": "17214214921",
+            "pkh": "tz1RQS5JmG93Cm3tcg7ciWbVTzNTBQT7Qf99",
+            "password": "cmaWby2yF6",
+            "email": "qrkxqtse.fhweswar@tezos.example.org"
+            }
+    </pre>
+    <p>
+        Transfer the contents of the JSON document into the Galleon import screen so it looks something like this:
+    </p>
+    <img src="images/tutorials-twentymins-galleon-import.png"></img>
+    <p>
+        After you hit the Import button and wait for a couple of minutes, you should see your account address and non-zero tez balance:
+    </p>
+    <img src="images/tutorials-twentymins-galleon-home.png"></img>
+    <p>
+        Not bad! We have 17,214 tez to play with!
+    </p>
+    <p>
+        Now we'll write a very simple Tezos smart contract in SmartPy using the <a href="https://smartpy.io/demo/">online SmartPy IDE</a>. Here is the code we are going to use:
+    </p>
+    <pre>
+        import smartpy as sp
+
+        class MyContract(sp.Contract):
+            # Sets stored string at initialization.
+            def __init__(self, param1):
+                self.init(contents = param1)
+
+            # Updates stored string when called.
+            @sp.entry_point
+            def update(self, params):
+                self.data.contents = params
+
+        # Test
+        @sp.add_test(name = "TheTest")
+        def test():
+            # We define a test scenario, together with some outputs and checks
+            scenario = sp.test_scenario()
+
+            # We first define a contract and add it to the scenario
+            c1 = MyContract("Hello")
+            scenario += c1
+
+            # And call some of its entry points
+            scenario += c1.update("Goodbye")
+
+            # Finally, we check its final storage
+            scenario.verify(c1.data.contents == "Goodbye")
+    </pre>
+    <p>
+        This contract simply stores a string. It's given an initial value during origination and it has a function which allows that value to be updated. In the test above, the contract is initialized with "Hello" and is later updated to "World". Very simple! Paste this code into the SmartPy editor and hit the green play button. You should see something like this:
+    </p>
+    <img src="images/tutorials-twentymins-smartpy-editor.png"></img>
+    <p>
+        The SmartPy editor is a great tool for prototyping Tezos smart contracts. Not only is SmartPy an intuitive Python-like language but the editor allows us to write unit tests to validate our functionality. On the right side, we can see the initial state of the contract as well as the effect of each test. Neat! Feel free to play around with SmartPy later to get a sense of the language and all the functionality of the editor.
+    </p>
+    <p>
+        Of course, Michelson is the official language of Tezos smart contracts and our code so far is in SmartPy. Click on the Michelson tab in the editor and then 'Code' to get the Michelson code corresponding to the SmartPy code we just wrote:
+    </p>
+    <img src="images/tutorials-twentymins-smartpy-michelson.png"></img>
+    <p>
+        Now we will use Galleon to deploy this contract and, later, call it once. In Galleon, click on "Interact with Contracts" and then "Deploy a New Contract". Change the format to "Michelson", paste in the code from above, set the initial storage to "Hello", pick a high fee and set the gas and storage limits to 100,000 and deploy the contract:
+    </p>
+    <img src="images/tutorials-twentymins-galleon-deploy.jpg"></img>
+    <ul>
+        TODO:
+        <li>Show how to invoke from Galleon</li>
+        <li>Show how to programatically activate, originate and invoke with ConseilJS</li>
+        <li>Show how to explore contract with Arronax</li>
+    </ul>
+
+    <h3><a name="tutorials-fa1.2">Deploying an FA1.2 fungible token contract</a></h3>
     <p>
       Coming soon..
     </p>
