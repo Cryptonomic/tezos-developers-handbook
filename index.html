@@ -43,16 +43,22 @@
       Dear reader, as of early 2020, the <a href="https://developers.tezos.com/">Tezos platform</a> is becoming mature enough that functional and resilient applications can be built with it. <a href="https://cryptonomic.tech/">Cryptonomic</a> has been building tools for Tezos since late 2017 with the intention of creating a seamless end to end experience for Tezos developers. In this handbook, we provide a variety of resources, tutorials and overviews that will help any blockchain developer get up and running quickly with the Tezos platform.
     </p>
     <p>
-      The quickest way to become productive is to first read the Cryptonomic Stack section followed by the twenty minute walkthrough tutorial. More detailed information about the tools mentioned can be found in the Documentation section. Support is available through <a href="https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech">Matrix / Riot</a> and <a href="mailto:support@cryptonomic.tech">email</a>. 
+      The quickest way to become productive is to first read the <a href="#stack">Cryptonomic Stack</a> section followed by the <a href="#tutorials-twentymins">twenty minute tour</a> tutorial. More detailed information about the tools mentioned can be found in the <a href="#documentation">Documentation</a> section. Support is available through <a href="https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech">Matrix / Riot</a> and <a href="mailto:support@cryptonomic.tech">email</a>. 
     </p>
     <p>
-      This handbook is a living document so it will keep evolving as we add new content, enhance our tools and add new capabilities. Of course, we are also highly receptive to user feedback as expect us to add more content in response to user requests. Speaking of, if you have any ideas for content we should add here, do not hesitate to <a href="https://github.com/Cryptonomic/tezos-developers-handbook/issues">open a GitHub issue</a>.
+      This handbook is a living document so it will keep evolving as we add new content, enhance our tools and add new capabilities. Of course, we are also highly receptive to user feedback so expect us to add more content in response to user requests. Speaking of, if you have any ideas for content we should add here, do not hesitate to <a href="https://github.com/Cryptonomic/tezos-developers-handbook/issues">open a GitHub issue</a>.
     </p>
     <hr/>
 
     <h2><a name="stack">The Cryptonomic Stack</a></h2>
     <p>
       The Cryptonomic stack consists of several tools which are build to work seamlessly together. Odds are if you start working with any one of the tools, the rest will be easy for you to adopt. 
+    </p>
+    <p>
+      The stack is great for fetching and viewing blockchain data, deploying and managing smart contracts, building wallets and visualizations and various kinds of developer tooling.
+    </p>
+    <p>
+      The stack isn't great yet for building user-facing dApps as battle-tested equivalents for MetaMask and other browser plugins are still under development. As we get closer to release for these tools, we will update the documentation here. Maybe you can be the one to build your own tools to make it easy to build Tezos dApps. :)
     </p>
     <h3><a name="stack-nc">Nautilus Cloud</a></h3>
     <p>
@@ -63,26 +69,28 @@
     </p>
     <h3><a name="stack-conseil">Conseil</a></h3>
     <p>
-      Pulling data out of blockchains can also be notoriously difficult. Many developers choose to pull data out of their blockchain nodes and store it in a database for easy querying. This is call indexing. <a href="https://github.com/Cryptonomic/Conseil">Conseil</a> serves as an indexer for the Tezos blockchain. It can only provide blockchain data using REST but also provide metadata to help developers identify and pull the data they need. Nautilus Cloud provides access to Conseil indexes for major Tezos network. See the Tutorials section for guides on querying data with Conseil. Conseil is written in the functional style using the Scala programming language.
+      Pulling data out of blockchains can also be notoriously difficult. Many developers choose to pull data out of their blockchain nodes and store it in a database for easy querying. This is call indexing. <a href="https://github.com/Cryptonomic/Conseil">Conseil</a> serves as an indexer for the Tezos blockchain. Not only does it provide blockchain data using REST but it also provides metadata to help developers identify and pull the data they need. Nautilus Cloud provides access to Conseil nodes for the major Tezos networks. See the Tutorials section for guides on querying data with Conseil. Conseil is written in the functional style using the <a href="https://scala-lang.org/">Scala</a> programming language.
     </p>
+    <p>
+      Notable third-party development libraries which integrate with Conseil include <a href="https://github.com/baking-bad/conseilpy">ConseilPy</a> (Python) and <a href="https://github.com/keefertaylor/TezosKit">TezosKit</a> (Swift) and <a href="https://github.com/TezosRio/TezosJ_SDK">TezosJ</a> (Android).
     <h3><a name="stack-conseiljs">ConseilJS</a></h3>
     <p>
       Most front end developers these days like to work with Node libraries. <a href="https://github.com/Cryptonomic/ConseilJS">ConseilJS</a> is an <a href="https://www.npmjs.com/package/conseiljs">NPM library</a> written in TypeScript that allows developers to read from and write to the Tezos blockchain. A variety of applications can be built using ConseilJS. At Cryptonomic, we have used it to build Galleon, Arronax and Mininax, among other projects. ConseilJS is also available as a <a href="https://www.jsdelivr.com/package/npm/conseiljs">standalone JavaScript file</a>. 
     </p>
     <p>
-      For Ethereum developers, ConseilJS is a rough analogue of web3.js but supports a greater class of functionality, including key management, hardware wallet connectivity and blockchain data queries. 
+      For Ethereum developers, ConseilJS is a rough analogue of web3.js but supports a greater class of functionalities, including key management, hardware wallet connectivity and blockchain data queries. 
     </p>
     <h3><a name="stack-galleon">Galleon</a></h3>
     <p>
-      <a href="https://galleon-wallet.tech">Galleon</a> is a wallet for the Tezos platform. It works equally well with real tez from mainnet and play tez from the major testnet faucets. Developers will find Galleon useful for deploying and invoking smart contracts without writing front end code. This is especially is useful if you are simply trying to prototype smart contract code using a tool like <a href="https://smartpy.io">SmartPy</a>. 
+      <a href="https://galleon-wallet.tech">Galleon</a> is a wallet for the Tezos platform. It works equally well with real tez from mainnet and play tez from the major testnet faucets. Developers will find Galleon useful for deploying and invoking smart contracts without writing front end code. This is especially useful if you are simply trying to prototype smart contract code using a tool like <a href="https://smartpy.io">SmartPy</a>. 
     </p>
     <h3><a name="stack-arronax">Arronax</a></h3>
     <p>
-      Block explorers can be fairly limiting if you are not a regular wallet users. Blockchain developers need to run rich queries to check on their application's behavior, debug issues and get analytics information about app usage. This is why we created <a href="https://arronax.io/">Arronax</a> using Conseil as its data provider. Arronax will allow you to run queries and generate reports tailored to your specific needs. It will help you find your top users, find your biggest transactions and most popular smart contract entry points. Go ahead and give <a href="https://arronax.io/">Arronax</a> a spin right now!
+      Block explorers can be fairly limiting if you are not a regular wallet users. Blockchain developers need to run rich queries to check on their application's behavior, debug issues and get analytics information about app usage. This is why we created <a href="https://arronax.io/">Arronax</a> (using Conseil as its data provider). Arronax will allow you to run queries and generate reports tailored to your specific needs. It will help you find your top users, find your biggest transactions and most popular smart contract entry points. Go ahead and give <a href="https://arronax.io/">Arronax</a> a spin right now!
     </p>
     <h3><a name="stack-mininax">Mininax</a></h3>
     <p>
-      Sometimes you just want to keep things simple and use a good old block explorer. We built <a href="https://mininax.io/">Mininax</a> as a retro mininax explorer serving as an entrypoint into Arronax as a fun summer project but now it's evolving into a full-fledged explorer in its own right. Soon, there will be features which will make viewing and investigating smart contracts much more intuitive. 
+      Sometimes you just want to keep things simple and use a good old block explorer. We built <a href="https://mininax.io/">Mininax</a> as a retro mininax explorer serving as an entrypoint into Arronax as a fun summer project using <a href="https://reasonml.github.io/">ReasonML</a>. Now it's evolving into a full-fledged explorer in its own right. Soon, there will be features which will make viewing and investigating smart contracts much more intuitive. 
     </p>
     <hr/>
 
@@ -94,14 +102,14 @@
     <p>
         We need to get access to the blockchain and its data by visiting <a href="https://nautilus.cloud">Nautilus Cloud</a> and logging in with our GitHub account. Once you are logged in you should see something like this:
     </p>
-    <img src="images/tutorials-twentymins-nc.png"></img>
+    <img src="images/tutorials-twentymins-nc.png" width="50%"></img>
     <p>
         Nautilus Cloud offers two environments, 'prod' which runs against the Tezos mainnet and 'dev' which runs against a testnet. For each environment, we get the URL to use to access Conseil and Tezos nodes along with the API keys we need to use. In this tutorial, we will be working with a testnet so let's note the URLs and the Conseil API key (in this case 'ab682065-864a-4f11-bc77-0ef4e9493fa1').
     </p>
     <p>
         Now we need to get some testnet funds with which we can originate a contract and play with it. Let's download the <a href="https://galleon-wallet.tech/">Galleon wallet</a> and install it on our system. Once the wallet is up, we'll need to click on 'Settings' on the top right and make the wallet point to the testnet by changing the settings for both the Tezos and Conseil nodes:
     </p>
-    <img src="images/tutorials-twentymins-galleon-settings.png"></img>
+    <img src="images/tutorials-twentymins-galleon-settings.png" width="50%"></img>
     <p>
         Let's click on "Back to Wallet" and then "Create new Wallet" to get a new wallet going. Pick a file location and provide a strong password as requested. On the next screen, we'll use the "Import Fundraiser Wallet" option to import a free faucet account with tez for us to play with. Visit the <a href="https://faucet.tzalpha.net/">Tezos Faucet</a> and download a JSON document. The document should look something like this:
     </p>
@@ -134,16 +142,16 @@
     <p>
         Transfer the contents of the JSON document into the Galleon import screen so it looks something like this:
     </p>
-    <img src="images/tutorials-twentymins-galleon-import.png"></img>
+    <img src="images/tutorials-twentymins-galleon-import.png" width="50%"></img>
     <p>
         After you hit the Import button and wait for a couple of minutes, you should see your account address and non-zero tez balance:
     </p>
-    <img src="images/tutorials-twentymins-galleon-home.png"></img>
+    <img src="images/tutorials-twentymins-galleon-home.png" width="50%"></img>
     <p>
         Not bad! We have 17,214 tez to play with!
     </p>
     <p>
-        Now we'll write a very simple Tezos smart contract in SmartPy using the <a href="https://smartpy.io/demo/">online SmartPy IDE</a>. Here is the code we are going to use:
+        Now we'll write a very simple Tezos smart contract in SmartPy using the <a href="https://smartpy.io/demo/">online SmartPy IDE</a>. Here is <a href="https://smartpy.io/demo/index.html?code=eJxtkcFOwzAMhu95Cqu7dGKqtCvSJBAScOHEEMfKJO4a0SZV4jGVp8fJ2jImcmmVON_3x7b94AND7DHwMAJGiINSusMY4WV88I4Dai7jUM3_61sFslbwSizV7AMZ@QTrDoAM1lm22NlvZOtdlWsNNVDX6aSuy0hds4EBA_bbiZVW2q5SSalFRE7Yu7lKTca3wSDTtfTUkgONXUfmrLuTtAIIYz1463iJcMzXLwPE6wBSgNV1gKjUCvYUWSUyGlNLCC4d9iQlxb6ldFisVZLko6VH75TM1hFgPoGoyWGwfgPsD8QtBThZbiF6gfkjD0fxojOgW9KfMWPmOyITf8LU81a59EZMjQ1iWHx6GljGSWqwLFIQ50LMd_VWwBezLp6p67w854_7ZieFs@w@BZSOT7EbQUfILYfc8vjP3Wpqf_HkvfkYqViiP1onrHEDJzo_O@OatJtHjQf6w6u@KNhmLIV5NS@Zxi_9Byyk6ko-">the code</a> we are going to use:
     </p>
     <pre>
         import smartpy as sp
@@ -177,24 +185,34 @@
     <p>
         This contract simply stores a string. It's given an initial value during origination and it has a function which allows that value to be updated. In the test above, the contract is initialized with "Hello" and is later updated to "World". Very simple! Paste this code into the SmartPy editor and hit the green play button. You should see something like this:
     </p>
-    <img src="images/tutorials-twentymins-smartpy-editor.png"></img>
+    <img src="images/tutorials-twentymins-smartpy-editor.png" width="50%"></img>
     <p>
         The SmartPy editor is a great tool for prototyping Tezos smart contracts. Not only is SmartPy an intuitive Python-like language but the editor allows us to write unit tests to validate our functionality. On the right side, we can see the initial state of the contract as well as the effect of each test. Neat! Feel free to play around with SmartPy later to get a sense of the language and all the functionality of the editor.
     </p>
     <p>
         Of course, Michelson is the official language of Tezos smart contracts and our code so far is in SmartPy. Click on the Michelson tab in the editor and then 'Code' to get the Michelson code corresponding to the SmartPy code we just wrote:
     </p>
-    <img src="images/tutorials-twentymins-smartpy-michelson.png"></img>
+    <img src="images/tutorials-twentymins-smartpy-michelson.png" width="50%"></img>
     <p>
-        Now we will use Galleon to deploy this contract and, later, call it once. In Galleon, click on "Interact with Contracts" and then "Deploy a New Contract". Change the format to "Michelson", paste in the code from above, set the initial storage to "Hello", pick a high fee and set the gas and storage limits to 100,000 and deploy the contract:
+        Now we will use Galleon to deploy this contract and, later, call it once. In Galleon, click on "Interact with Contracts" and then "Deploy a New Contract". Change the format to "Michelson", paste in the code from above, set the initial storage to "Hello", pick a high fee and set the gas and storage limits as shown and deploy the contract:
     </p>
-    <img src="images/tutorials-twentymins-galleon-deploy.jpg"></img>
-    <ul>
-        TODO:
-        <li>Show how to invoke from Galleon</li>
-        <li>Show how to programatically activate, originate and invoke with ConseilJS</li>
-        <li>Show how to explore contract with Arronax</li>
-    </ul>
+    <img src="images/tutorials-twentymins-galleon-deploy.png" width="50%"></img>
+    <p>
+      It's a good idea to use high fees on testnets but feel free to choose any appropriate fee during mainnet deployments. After waiting for a couple of minutes, click on the link that shows up and it will direct you to a Mininax page showing details of the origination. Indeed, the initial storage of the deployed contract on the blockchain contains the string "Hello":
+    </p>
+    <img src="images/tutorials-twentymins-mininax-before.png" width="50%">
+    <p>
+      Let's invoke the update() function of the smart contract so that the storage contains "Goodbye" instead of "Hello". In Galleon, click on "Interact with contracts" and then "Invoke an Existing Contract". Use the settings shown below:
+    </p>
+    <img src="images/tutorials-twentymins-galleon-invoke.png" width="50%"></img>
+    <p>
+      Once again, we'll wait a couple of minutes before clicking on the link that shows up. Mininax now shows the updated storage value!
+    </p>
+    <img src="images/tutorials-twentymins-mininax-after.png" width="50%"></img>
+    <p>
+      Of course, many of us prefer to deploy and interact with contracts programatically instead of using a GUI wallet. Worry not, we have ConseilJS at our disposal! 
+    </p>
+    <p>To be continued..</p>
 
     <h3><a name="tutorials-fa1.2">Deploying an FA1.2 fungible token contract</a></h3>
     <p>
