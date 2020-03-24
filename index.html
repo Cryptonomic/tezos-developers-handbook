@@ -7,6 +7,10 @@
   <body>
     <h1>The Tezos Developers' Handbook</h1>
 
+
+
+
+
     <h2>Table of contents</h2>
     <ul>
       <li>
@@ -37,6 +41,10 @@
       </li>
     </ul>
     <hr/>
+
+
+
+
 
     <h2><a name="introduction">Introduction</a></h2>
     <p>
@@ -94,10 +102,17 @@
     </p>
     <hr/>
 
+
+
+
+
     <h2><a name="tutorials">Tutorials</a></h2>
     <h3><a name="tutorials-twentymins">The twenty minute tour</a></h3>
     <p>
       In this tutorial, we are going to get a quick taste of the Cryptonomic stack by deploying and examining a simple Tezos smart contract. 
+    </p>
+    <p>
+      If you are not at least mildly familiar with the Cryptonomic stack, it might be worthwhile reading our <a href="#stack">overview</a>. 
     </p>
     <p>
         We need to get access to the blockchain and its data by visiting <a href="https://nautilus.cloud">Nautilus Cloud</a> and logging in with our GitHub account. Once you are logged in you should see something like this:
@@ -210,9 +225,33 @@
     </p>
     <img src="images/tutorials-twentymins-mininax-after.png" width="50%"></img>
     <p>
-      Of course, many of us prefer to deploy and interact with contracts programatically instead of using a GUI wallet. Worry not, we have ConseilJS at our disposal! 
+      Of course, many of us prefer to deploy and interact with contracts programatically instead of using a GUI wallet. Worry not, we have ConseilJS at our disposal! As you can see in <a href="https://gist.github.com/anonymoussprocket/00f673a1188ae5510d50e7c96f6c8a94">this GitHub gist</a>, both the actions above can be done with a few lines of code. As this is a twenty minute tour, we are not going to look at the specific of the code but here are the most relevant bits for your reference:
     </p>
-    <p>To be continued..</p>
+    <pre>
+      const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, fee, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
+
+      const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, address, 10000, fee, '', freight, gas, entrypoint, parameter, TezosParameterFormat.Michelson);
+    </pre>
+    <p>
+      Observe these lines use the settings we obtained from Nautilus Cloud:
+    </p>
+    <pre>
+      const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
+      const conseilServer = { url: 'https://conseil-dev.cryptonomic-infra.tech:443', apiKey: 'ab682065-864a-4f11-bc77-0ef4e9493fa1', network: 'carthagenet' };
+    </pre>
+    <p>
+      Some of the materials in the Documentation section go over the details of contract interaction with ConseilJS.
+    </p>
+    <p>
+      Now for the final step we can run some simple analytics on our contract using Arronax. A <a href="https://arronax.io?e=Tezos%20Carthagenet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJzdGF0dXMiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCIsInBhcmFtZXRlcnMiXSwicHJlZGljYXRlcyI6W3siZmllbGQiOiJraW5kIiwib3BlcmF0aW9uIjoiZXEiLCJzZXQiOlsidHJhbnNhY3Rpb24iXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJkZXN0aW5hdGlvbiIsIm9wZXJhdGlvbiI6ImVxIiwic2V0IjpbIktUMUVoeU5VeUFVRzQydWRtSnpmQXo3V0RMMmRhRE5iMmN3diJdLCJpbnZlcnNlIjpmYWxzZX1dLCJvcmRlckJ5IjpbeyJmaWVsZCI6InRpbWVzdGFtcCIsImRpcmVjdGlvbiI6ImFzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0">shared report</a> shows us all the invocations of the contract with address KT1EhyNUyAUG42udmJzfAz7WDL2daDNb2cwv deployed and invoked by the ConseilJS code above. The report should look something like this:
+    </p>
+    <img src="images/tutorials-twentymins-arronax.png" width="50%"></img>
+    <p>
+      Observe, at the time this tutorial was last updated, there were four invocations of the contract and a new string was stored each time. Click the Filter button and see how we are specifically looking at transactions sent to KT1EhyNUyAUG42udmJzfAz7WDL2daDNb2cwv. Feel free to click on columns and try different combinations of columns to explore the dataset. Once you deploy your own smart contracts, you can set up a bunch of reports to analyze things like your contract's top callers, the functions used the most and the peak times when your contract is used. Remember, Arronax runs off Conseil so a Conseil query is being submitted each time you run an Arronax report. 
+    </p>
+    <p>
+      So there you have it, a lightening round through the Cryptonomic stack. Don't hesitate to seek help if any of these bits were confusing for you. Check out the Documentation section to get more in depth information about each product. Happy hacking!
+    </p>
 
     <h3><a name="tutorials-fa1.2">Deploying an FA1.2 fungible token contract</a></h3>
     <p>
@@ -228,7 +267,13 @@
     </p>
     <hr/>
     
+
+
+
+
     <h2><a name="documentation">More Documentation</a></h2>
+
+    <p>Coming very soon!</p>
     
   </body>
 </html>
