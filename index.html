@@ -423,6 +423,79 @@
     <pre>
       keystore = await initAccount(issuer);
     </pre>
+    <p>
+      Now the fun begins! With the TokenHelper, we can quickly and easily perform different token actions with the contract we deployed, without having to go through the complex and tedious contract entrypoints. To start, now that we have the issuer set up, we need to activate the ledger in order to get it working. When we initially deployed the contract, we made it "paused" instead of "active." The following code uses the TokenHelper to activate the contract so we can start calling it, while the surrounding log statements print whether we are active or not.
+    </p>
+    <pre>
+      console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress) === true) ? 'paused' : 'active' }`);
+                                                              //                                     fee     gas      freight
+      groupid = await Tzip7ReferenceTokenHelper.activateLedger(tezosNode, keystore, contractAddress, 50_000, 125_000, 100);
+      console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress)) ? 'paused' : 'active' }`);
+    </pre>
+    <p>
+      Now we run into another problem: we have an activated ledger. But we don't have any token yet! Once again, TokenHelper comes to the resque, we can mint new tokens easily using the mint() funtion. The log statements output the amounts of coin in circulation, while the mint statement we are calling puts a whopping 1 billion tokens into circulation, US Federal Reserve Style.
+    </p>
+    <pre>
+      console.log(`current supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
+                                                    //                                     fee             amount         gas      freight 
+      groupid = await Tzip7ReferenceTokenHelper.mint(tezosNode, keystore, contractAddress, 50_000, issuer, 1_000_000_000, 125_000, 100);
+      console.log(`new supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
+      console.log(`${issuer} balance: ${await Tzip7ReferenceTokenHelper.getAccountBalance(tezosNode, mapid, issuer)}`);
+    </pre>
+    <p>
+      Now that we have a billion tokens, let's spread the love and transfer some to other accounts. Let's start by generating a Conseil Query to get 30 large testnet accounts. We first initialize a blank Query, and then add different fields and predicates to build an increasingly complex query.
+    </p>
+    <pre>
+      let largeAccountQuery = ConseilQueryBuilder.blankQuery();
+      largeAccountQuery = ConseilQueryBuilder.addFields(largeAccountQuery, 'account_id');
+      largeAccountQuery = ConseilQueryBuilder.addPredicate(largeAccountQuery, 'balance', ConseilOperator.GT, [9000000000]);
+      largeAccountQuery = ConseilQueryBuilder.addPredicate(largeAccountQuery, 'account_id', ConseilOperator.STARTSWITH, ['tz']);
+      largeAccountQuery = ConseilQueryBuilder.addPredicate(largeAccountQuery, 'account_id', ConseilOperator.IN, [originator, issuer], true);
+      largeAccountQuery = ConseilQueryBuilder.setLimit(largeAccountQuery, 30);
+      const largeAccountResult = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', largeAccountQuery);
+      const largeAccounts = largeAccountResult.map(a => a.account_id);
+    </pre>
+    <p>
+      Now that we have this data, we can iterate through it, and use a TokenHelper method to transfer the token over to their accounts easily!
+    </p>
+    <pre>
+      for (let i = 0; i < largeAccounts.length; i++) {
+                                                                 //                                     fee     source                  destination       amount gas      freight
+        groupid = await Tzip7ReferenceTokenHelper.transferBalance(tezosNode, keystore, contractAddress, 50_000, keystore.publicKeyHash, largeAccounts[i], 1_000, 125_000, 100);
+        console.log(`balance transfer to "${largeAccounts[i]}"`);
+      }
+    </pre>
+    <p>
+      And we've done it! Let's repeat the steps for the 30 smallest accounts.
+    </p>
+    <pre>
+      let smallAccountQuery = ConseilQueryBuilder.blankQuery();
+      smallAccountQuery = ConseilQueryBuilder.addFields(smallAccountQuery, 'account_id');
+      smallAccountQuery = ConseilQueryBuilder.addPredicate(smallAccountQuery, 'balance', ConseilOperator.LT, [9000000000]);
+      smallAccountQuery = ConseilQueryBuilder.addPredicate(smallAccountQuery, 'balance', ConseilOperator.LT, [999000000]);
+      smallAccountQuery = ConseilQueryBuilder.addPredicate(smallAccountQuery, 'account_id', ConseilOperator.STARTSWITH, ['tz']);
+      smallAccountQuery = ConseilQueryBuilder.addPredicate(smallAccountQuery, 'account_id', ConseilOperator.IN, [originator, issuer], true);
+      smallAccountQuery = ConseilQueryBuilder.setLimit(smallAccountQuery, 90);
+      let smallAccountResult = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', smallAccountQuery);
+      const smallAccounts = smallAccountResult.map(a => a.account_id);
+      console.log(smallAccounts.length);
+
+      for (let i = 0; i < largeAccounts.length; i++) {
+          for (let j = 3 * i, k = 3 * (i + 1); j < k; j++) {
+              groupid = await Tzip7ReferenceTokenHelper.approveBalance(tezosNode, keystore, contractAddress, 50_000, smallAccounts[j], 100, 125_000, 100);
+              console.log(`approve allowance for "${smallAccounts[j]}"`);
+          }
+      }
+
+      console.log(`current supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
+      console.log(`${issuer} balance: ${await Tzip7ReferenceTokenHelper.getAccountBalance(tezosNode, mapid, issuer)}`);
+    </pre>
+    <p>
+      Those last two log statements let us find out how many tokens we put into circulation and our (the issuer's) remaining token balance. Isn't creating a currency fun!
+    </p>
+    <p>
+      To look at the code in its entirety, checkout out this <a href="https://gist.github.com/anonymoussprocket/2df333da147b57510b1f78a9c930caab">gist</a> and the corresponding Medium <a href="https://medium.com/the-cryptonomic-aperiodical/tezos-is-now-an-asset-tokenization-platform-4d88ded4e9c">article</a>.
+    </p>
     <h3><a name="tutorials-conseil">Analyzing blockchain data using Conseil</a></h3>
     <p>
       Visit the <a href="https://github.com/Cryptonomic/Conseil/wiki/Tutorial%3A-Querying-for-Tezos-data">tutorial</a> on the Conseil wiki.
