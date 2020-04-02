@@ -51,7 +51,7 @@
       Dear reader, as of early 2020, the <a href="https://developers.tezos.com/">Tezos platform</a> is becoming mature enough that functional and resilient applications can be built with it. <a href="https://cryptonomic.tech/">Cryptonomic</a> has been building tools for Tezos since late 2017 with the intention of creating a seamless end to end experience for Tezos developers. In this handbook, we provide a variety of resources, tutorials and overviews that will help any blockchain developer get up and running quickly with the Tezos platform.
     </p>
     <p>
-      The quickest way to become productive is to first read the <a href="#stack">Cryptonomic Stack</a> section followed by the <a href="#tutorials-twentymins">twenty minute tour</a> tutorial. More detailed information about the tools mentioned can be found in the <a href="#documentation">Documentation</a> section. Support is available through <a href="https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech">Matrix / Riot</a> and <a href="mailto:support@cryptonomic.tech">email</a>. 
+      The quickest way to become productive is to first read the <a href="#stack">Cryptonomic Stack</a> section followed by the <a href="#tutorials-twentymins">twenty minute tour</a> tutorial. More detailed information about the tools mentioned can be found in the <a href="#documentation">Documentation</a> section. Support is available through <a href="https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech">Matrix / Riot</a> and <a href="/cdn-cgi/l/email-protection#9feceaefeff0edebdffcede6efebf0f1f0f2f6fcb1ebfafcf7">email</a>. 
     </p>
     <p>
       This handbook is a living document so it will keep evolving as we add new content, enhance our tools and add new capabilities. Of course, we are also highly receptive to user feedback so expect us to add more content in response to user requests. Speaking of, if you have any ideas for content we should add here, do not hesitate to <a href="https://github.com/Cryptonomic/tezos-developers-handbook/issues">open a GitHub issue</a>.
@@ -128,8 +128,7 @@
     <p>
         Let's click on "Back to Wallet" and then "Create new Wallet" to get a new wallet going. Pick a file location and provide a strong password as requested. On the next screen, we'll use the "Import Fundraiser Wallet" option to import a free faucet account with tez for us to play with. Visit the <a href="https://faucet.tzalpha.net/">Tezos Faucet</a> and download a JSON document. The document should look something like this:
     </p>
-    <pre>
-        {
+    <pre>        {
             "mnemonic": [
                 "avocado",
                 "settle",
@@ -151,7 +150,7 @@
             "amount": "17214214921",
             "pkh": "tz1RQS5JmG93Cm3tcg7ciWbVTzNTBQT7Qf99",
             "password": "cmaWby2yF6",
-            "email": "qrkxqtse.fhweswar@tezos.example.org"
+            "email": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c4d4e57444d484f59125a544b594f4b5d4e7c485946534f1259445d514c505912534e5b">[email&#160;protected]</a>"
             }
     </pre>
     <p>
@@ -168,8 +167,7 @@
     <p>
         Now we'll write a very simple Tezos smart contract in SmartPy using the <a href="https://smartpy.io/demo/">online SmartPy IDE</a>. Here is <a href="https://smartpy.io/demo/index.html?code=eJxtkcFOwzAMhu95Cqu7dGKqtCvSJBAScOHEEMfKJO4a0SZV4jGVp8fJ2jImcmmVON_3x7b94AND7DHwMAJGiINSusMY4WV88I4Dai7jUM3_61sFslbwSizV7AMZ@QTrDoAM1lm22NlvZOtdlWsNNVDX6aSuy0hds4EBA_bbiZVW2q5SSalFRE7Yu7lKTca3wSDTtfTUkgONXUfmrLuTtAIIYz1463iJcMzXLwPE6wBSgNV1gKjUCvYUWSUyGlNLCC4d9iQlxb6ldFisVZLko6VH75TM1hFgPoGoyWGwfgPsD8QtBThZbiF6gfkjD0fxojOgW9KfMWPmOyITf8LU81a59EZMjQ1iWHx6GljGSWqwLFIQ50LMd_VWwBezLp6p67w854_7ZieFs@w@BZSOT7EbQUfILYfc8vjP3Wpqf_HkvfkYqViiP1onrHEDJzo_O@OatJtHjQf6w6u@KNhmLIV5NS@Zxi_9Byyk6ko-">the code</a> we are going to use:
     </p>
-    <pre>
-        import smartpy as sp
+    <pre>        import smartpy as sp
 
         class MyContract(sp.Contract):
             # Sets stored string at initialization.
@@ -227,16 +225,14 @@
     <p>
       Of course, many of us prefer to deploy and interact with contracts programatically instead of using a GUI wallet. Worry not, we have ConseilJS at our disposal! As you can see in <a href="https://gist.github.com/anonymoussprocket/00f673a1188ae5510d50e7c96f6c8a94">this GitHub gist</a>, both the actions above can be done with a few lines of code. As this is a twenty minute tour, we are not going to look at the specific of the code but here are the most relevant bits for your reference:
     </p>
-    <pre>
-      const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, fee, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
+    <pre>      const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, fee, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
 
       const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, address, 10000, fee, '', freight, gas, entrypoint, parameter, TezosParameterFormat.Michelson);
     </pre>
     <p>
       Observe these lines use the settings we obtained from Nautilus Cloud:
     </p>
-    <pre>
-      const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
+    <pre>      const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
       const conseilServer = { url: 'https://conseil-dev.cryptonomic-infra.tech:443', apiKey: 'ab682065-864a-4f11-bc77-0ef4e9493fa1', network: 'carthagenet' };
     </pre>
     <p>
@@ -255,8 +251,110 @@
 
     <h3><a name="tutorials-fa1.2">Deploying an FA1.2 fungible token contract</a></h3>
     <p>
-      Coming soon..
+      The FA1.2 Smart Contract standard marked a new step in the development possibilities of the Tezos ecosystem by setting a standard for the creation of new tokens on the Tezos network. We can now create and deploy smart contracts to create tokens that can be transferred and exchanged with no loss of value (fungible) directly on the Tezos Blockchain! 
     </p>
+    <p>
+      The standard lays down a number of necessary entrypoints for a fungible token contract that serve to make a consistent experience for users, and a streamlined operation overall. More detailed information on the standard can be found <a href="https://gitlab.com/tzip/tzip/blob/master/proposals/tzip-7/tzip-7.md">here!</a>
+    </p>
+    <p>
+      Using ConseilJS, we can easily deploy and invoke such a contract! Before we start, make sure you have NodeJS and ConseilJS installed. You can run: 
+      <pre>       npm i conseiljs</pre> 
+      to add our package to your Node project. If you don't have NodeJS, check <a href="https://nodejs.dev">this</a> out for more information on how to get started!
+    </p>
+    <p>
+      We also need to get Cryptonomic API keys, which we can procure on <a href="https://nautilus.cloud/home">Nautilus Cloud</a> by logging in with a GitHub account. Make sure you copy and keep the testnet key handy so we can access it later.
+    </p>
+    <img src="" alt="Nautilus Cloud API Keys"> 
+    <p>
+      Now that we have everything we need, let's begin! To start, let's visit the testnet <a href="https://faucet.tzalpha.net/">faucet</a> and <i>download</i> two sets of keys:
+    </p>
+    <pre>
+              {
+                "mnemonic": [
+                  "right",
+                  "bomb",
+                  "sea",
+                  "paper",
+                  "picnic",
+                  "wealth",
+                  "slush",
+                  "hair",
+                  "maximum",
+                  "tobacco",
+                  "ritual",
+                  "air",
+                  "treat",
+                  "inherit",
+                  "undo"
+                ],
+                "secret": "2448de482f7c249ca0d0bb7fb30aa4faa65eb1ef",
+                "amount": "2406500031",
+                "pkh": "tz1fLQFXALX4pntvRrER21PSQtyaBFYFR7Ut",
+                "password": "8mV9AHVZkF",
+                "email": "jhconseg.twnylkil@tezos.example.org"
+              }
+    </pre>
+    <p>
+      And another one!
+    </p>
+    <pre>
+              {
+                "mnemonic": [
+                  "crucial",
+                  "process",
+                  "manage",
+                  "more",
+                  "damp",
+                  "frog",
+                  "inside",
+                  "reveal",
+                  "below",
+                  "mandate",
+                  "web",
+                  "wrist",
+                  "grocery",
+                  "give",
+                  "fitness"
+                ],
+                "secret": "320f40c4d5b416f58b5e0b099474188e8be7a331",
+                "amount": "26523282433",
+                "pkh": "tz1UvB93uihSL2ktgePmRrN5C71VMYjAGrWC",
+                "password": "GscjPmXhau",
+                "email": "cvhrucwz.gkqntnnd@tezos.example.org"
+              }
+    </pre>
+    <p>
+      With these accounts ready, we can get started directly in ConseilJS! Open up a text editor of your choice and pull up a TypeScript (.ts) file. With the files that we downloaded earlier, we don't need to manually enter data like we did before, we can import the FileSystem module to quickly load and parse the JSON into a quick format as seen below. Now, using the TezosWalletUtil, which was imported from ConseilJS, we can feed in the values from the JSON file to intialize the account from the file using the unlockFundraiserIdentity() function.
+    </p>
+    <pre>
+      import * as fs from 'fs';                                                                                                     // This imports the FileSystem module which allows us to read the JSON file in
+
+      import { TezosConseilClient, TezosWalletUtil, setLogLevel, KeyStore, Tzip7ReferenceTokenHelper } from 'conseiljs';            // This line and the next contains all of the ConseilJS imports needed for the contract
+      import { ConseilQueryBuilder, ConseilOperator, ConseilDataClient } from 'conseiljs';
+
+      async function initAccount(account: string): Promise<KeyStore> {
+        
+        console.log(" ~~ initAccount");
+        console.log(`loading ${account} faucet file`);
+
+        const faucetAccount = JSON.parse(fs.readFileSync(`${account}.json`, 'utf8'));
+
+        const keystore = await TezosWalletUtil.unlockFundraiserIdentity(faucetAccount['mnemonic'].join(' '), faucetAccount['email'], faucetAccount['password'], faucetAccount['pkh']);
+        console.log(`public key: ${keystore.publicKey}`);
+        console.log(`secret key: ${keystore.privateKey}`);
+        console.log(`account hash: ${keystore.publicKeyHash}`);
+
+        return keystore;
+      }
+    </pre>
+    <p>
+      Now that we have functionality to initialize an account, let's add some constants necessary for connecting to the Tezos node, as follows at the top of the code:
+    </p>
+    <pre>
+      const tezosNode = '...';                                                        // You can get this from Nautilus Cloud, make sure you take the testnet one!
+      const conseilServer = { url: '...', apiKey: '...', network: 'babylonnet' };     // Remember the API Key we got from Nautilus Cloud, 
+      const networkBlockTime = 30 + 1;                                                // 
+    </pre>
     <h3><a name="tutorials-conseil">Analyzing blockchain data using Conseil</a></h3>
     <p>
       Visit the <a href="https://github.com/Cryptonomic/Conseil/wiki/Tutorial%3A-Querying-for-Tezos-data">tutorial</a> on the Conseil wiki.
@@ -275,5 +373,5 @@
 
     <p>Coming very soon!</p>
     
-  </body>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
 </html>
