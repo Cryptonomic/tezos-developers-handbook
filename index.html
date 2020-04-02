@@ -278,7 +278,7 @@
     <pre>
       const tezosNode = '...';                                                        // You can get this from Nautilus Cloud, make sure you take the testnet one!
       const conseilServer = { url: '...', apiKey: '...', network: 'babylonnet' };     // Enter both the testnet Conseil Node URL and API Key here!
-      const networkBlockTime = 30 + 1;                                                // This 
+      const networkBlockTime = 30 + 1;                                                // Because testnet's block time is 30 seconds, we wait 31 seconds before checking for a block update
     </pre>
     <p>
       Now let's get some funds to play with. Visit the testnet <a href="https://faucet.tzalpha.net/">faucet</a> and <i>download</i> two sets of keys:
@@ -383,10 +383,12 @@
       let keystore = await initAccount(originator);
     </pre>
     <p>
-      Now with all of this set up, let's deploy the contract! Using ConseilJS's Tzip7ReferenceTokenHelper, we can invoke the deployContract() function and deploy the contract. We can store the output of this function in the groupid variable. After this is done, we should make sure the operation succeeded, using the awaitOperationConfirmation() method of the the TezosTokenClient class, and passing in the groupid from the previous call. This will return some data about the completed operation, which we can then parse to get the contractAddress. Let's throw in a log statement for good measure, and verify that the contract is in the place that we expect!
+      Now with all of this set up, let's deploy the contract! Using ConseilJS's Tzip7ReferenceTokenHelper (referred to henceforth as TokenHelper), we can invoke the deployContract() function and deploy the contract. We can store the output of this function in the groupid variable. After this is done, we should make sure the operation succeeded, using the awaitOperationConfirmation() method of the the TezosTokenClient class, and passing in the groupid from the previous call. This will return some data about the completed operation, which we can then parse to get the contractAddress. Let's throw in a log statement for good measure, and verify that the contract is in the place that we expect!
     </p>
     <pre>
+                                                              //                    fee                                    supply
       groupid = await Tzip7ReferenceTokenHelper.deployContract(tezosNode, keystore, 100_000, keystore.publicKeyHash, true, 0);
+                                                                             //                                              duration   
       let conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, networkBlockTime);
       contractAddress = conseilResult['originated_contracts'];
       
@@ -395,7 +397,7 @@
       console.log(`verify: ${await Tzip7ReferenceTokenHelper.verifyDestination(tezosNode, contractAddress)}`);
     </pre>
     <p>
-      Now, you might be wondering, "we deployed a contract, but where is it?" The great thing about the Tzip7ReferenceTokenHelper is that it has a default token contract that it will deploy and set up! For simple deployments of tokens, this is ideal, and if we want to go back and define a more complex token smart contract, we can easily deploy that as well using ConseilJS!
+      Now, you might be wondering, "we deployed a contract, but where is it?" The great thing about the TokenHelper is that it has a default token contract that it will deploy and set up! For simple deployments of tokens, this is ideal, and if we want to go back and define a more complex token smart contract, we can easily deploy that as well using ConseilJS!
     </p>
     <p>
       Now that we have a contract deployed, we can collect the storage from that contract to get more specifics about it, like the map ID, which we will need to use later to get data about the contract.
@@ -406,15 +408,28 @@
       mapid = simplestorage.mapid;
     </pre>
     <p>
-      
+      This is all good, we have a contract deployed. But this contract's administrator is currently the originator account. We want it to be the issuer. Luckily for us, this is no problem in ConseilJS! Using the setAdministrator() function of the TokenHelper, we can quickly perform this operation.
     </p>
+    <pre>
+      console.log(`token administrator: ${await Tzip7ReferenceTokenHelper.getAdministrator(tezosNode, contractAddress)}`);
+                                                                //                                             fee      gas      freight
+      groupid = await Tzip7ReferenceTokenHelper.setAdministrator(tezosNode, keystore, contractAddress, issuer, 100_000, 125_000, 1_000);
+
+      console.log(`token administrator: ${await Tzip7ReferenceTokenHelper.getAdministrator(tezosNode, contractAddress)}`);
+    </pre>
+    <p>
+      Now if we want to do more contract operations, we need to initialize the issuer account, just as we did with the originator before.
+    </p>
+    <pre>
+      keystore = await initAccount(issuer);
+    </pre>
     <h3><a name="tutorials-conseil">Analyzing blockchain data using Conseil</a></h3>
     <p>
       Visit the <a href="https://github.com/Cryptonomic/Conseil/wiki/Tutorial%3A-Querying-for-Tezos-data">tutorial</a> on the Conseil wiki.
     </p>
     <h3><a name="tutorials-bakerregistry">Interacting with the Tezos baker registry</a></h3>
     <p>
-      Coming soon..
+      Coming soon...
     </p>
     <hr/>
     
