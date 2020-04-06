@@ -258,7 +258,7 @@
     <p>
       Using ConseilJS, we can easily deploy and invoke such a contract! Before we start, make sure you have NodeJS and ConseilJS installed. You can run: 
       <pre>       npm i conseiljs</pre> 
-      to add our package to your Node project. If you don't have NodeJS, check <a href="https://nodejs.dev">this</a> out for more information on how to get started!
+      to add our package to your Node project. If you don't have NodeJS, check <a href="https://nodejs.dev">this</a> out for more information on how to get started! We only support Node v12.16.1 which is the current LTS version, so make sure you install NVM (Node Version Manager) to updrade and downgrade Node as needed, which can be found <a href="https://github.com/nvm-sh/nvm">here.</a>
     </p>
     <p>
       First, we need to login to <a href="https://nautilus.cloud/home">Nautilus Cloud</a>. Keep the page handy, we'll need the API keys and node links later. Let's work in TypeScript, and get a fresh .ts file in your NodeJS project. Throw these few lines at the top, they'll handle all of the imports we need for this:
@@ -276,9 +276,12 @@
     </p>
     <pre>
       const tezosNode = '...';                                                        // You can get this from Nautilus Cloud, make sure you take the testnet one!
-      const conseilServer = { url: '...', apiKey: '...', network: 'babylonnet' };     // Enter both the testnet Conseil Node URL and API Key here!
+      const conseilServer = { url: '...', apiKey: '...', network: 'carthagenet' };    // Enter both the testnet Conseil Node URL and API Key here!
       const networkBlockTime = 30 + 1;                                                // Because testnet's block time is 30 seconds, we wait 31 seconds before checking for a block update
     </pre>
+    <p>
+      Make sure your links above go to <strong>port 443</strong>! The URL should end with ':443', if it doesn't, add that to the URL for it to work!
+    </p>
     <p>
       Now let's get some funds to play with. Visit the testnet <a href="https://faucet.tzalpha.net/">faucet</a> and <i>download</i> two sets of keys:
     </p>
@@ -382,10 +385,10 @@
       let keystore = await initAccount(originator);
     </pre>
     <p>
-      Now with all of this set up, let's deploy the contract! ConseilJS has a module called Tzip7ReferenceTokenHelper (referred to henceforth as TokenHelper), which gets its name from the TZIP-7 proposal and the reference implementation of the token contract in that proposal. The module can be used to deploy and invoke that contract easily! The deployContract() function gives us flexibility to set essential features of the contract, like the fee. We can store the output in a groupid variable to reference the operation later.
+      Now with all of this set up, let's deploy the contract! ConseilJS has a module called Tzip7ReferenceTokenHelper (referred to henceforth as TokenHelper), which gets its name from the <a href="https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-7">TZIP-7 proposal</a> and the <a href="https://gitlab.com/tzip/tzip/-/blob/master/proposals/tzip-7/ManagedLedger.tz">reference implementation</a> of the token contract in that proposal. The module can be used to deploy and invoke that contract easily! The deployContract() function gives us flexibility to set essential features of the contract, like the supply. We can store the output in a groupid variable to reference the operation later.
     </p>
     <pre>
-                                                              //                    fee                                    supply
+                                                              //                                                           supply
       groupid = await Tzip7ReferenceTokenHelper.deployContract(tezosNode, keystore, 100_000, keystore.publicKeyHash, true, 0);
     </pre>
     <p>
@@ -439,17 +442,17 @@
       console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress)) ? 'paused' : 'active' }`);
     </pre>
     <p>
-      Here we run into another problem: we have an activated ledger but we don't have any tokens yet! Once again, TokenHelper comes to the rescue as we can mint new tokens easily using the mint() function. The log statements output the amounts of coin in circulation, while the mint statement we are calling puts a whopping 1 billion tokens into circulation, US Federal Reserve style.
+      But now we have an activated ledger without any tokens yet! Once again, TokenHelper comes to the rescue as we can mint new tokens easily using the mint() function. The log statements output the amounts of coin in circulation, while the mint statement we are calling puts a whopping 2 trillion tokens into circulation, US Federal Reserve style.
     </p>
     <pre>
       console.log(`current supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
                                                     //                                     fee             amount         gas      freight 
-      groupid = await Tzip7ReferenceTokenHelper.mint(tezosNode, keystore, contractAddress, 50_000, issuer, 1_000_000_000, 125_000, 100);
+      groupid = await Tzip7ReferenceTokenHelper.mint(tezosNode, keystore, contractAddress, 50_000, issuer, 2_000_000_000_000, 125_000, 100);
       console.log(`new supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
       console.log(`${issuer} balance: ${await Tzip7ReferenceTokenHelper.getAccountBalance(tezosNode, mapid, issuer)}`);
     </pre>
     <p>
-      Now that we have a billion tokens, let's spread the love and airdrop some to other accounts. Let's start by generating a Conseil Query to get 30 large testnet accounts. We first initialize a blank Query, and then add different fields and predicates to build an increasingly complex query.
+      Now that we have a billion tokens, let's spread the love and airdrop some to other accounts. Let's start by generating a Conseil Query to get 30 large testnet accounts. We first initialize a blank Query, and then add different fields and predicates to build an increasingly complex query. Just a warning, this script will take a while to run!
     </p>
     <pre>
       let largeAccountQuery = ConseilQueryBuilder.blankQuery();
