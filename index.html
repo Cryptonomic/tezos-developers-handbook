@@ -167,7 +167,8 @@
     <p>
         Now we'll write a very simple Tezos smart contract in SmartPy using the <a href="https://smartpy.io/demo/">online SmartPy IDE</a>. Here is <a href="https://smartpy.io/demo/index.html?code=eJxtkcFOwzAMhu95Cqu7dGKqtCvSJBAScOHEEMfKJO4a0SZV4jGVp8fJ2jImcmmVON_3x7b94AND7DHwMAJGiINSusMY4WV88I4Dai7jUM3_61sFslbwSizV7AMZ@QTrDoAM1lm22NlvZOtdlWsNNVDX6aSuy0hds4EBA_bbiZVW2q5SSalFRE7Yu7lKTca3wSDTtfTUkgONXUfmrLuTtAIIYz1463iJcMzXLwPE6wBSgNV1gKjUCvYUWSUyGlNLCC4d9iQlxb6ldFisVZLko6VH75TM1hFgPoGoyWGwfgPsD8QtBThZbiF6gfkjD0fxojOgW9KfMWPmOyITf8LU81a59EZMjQ1iWHx6GljGSWqwLFIQ50LMd_VWwBezLp6p67w854_7ZieFs@w@BZSOT7EbQUfILYfc8vjP3Wpqf_HkvfkYqViiP1onrHEDJzo_O@OatJtHjQf6w6u@KNhmLIV5NS@Zxi_9Byyk6ko-">the code</a> we are going to use:
     </p>
-    <pre>        import smartpy as sp
+    <pre>        
+        import smartpy as sp
 
         class MyContract(sp.Contract):
             # Sets stored string at initialization.
@@ -225,14 +226,16 @@
     <p>
       Of course, many of us prefer to deploy and interact with contracts programatically instead of using a GUI wallet. Worry not, we have ConseilJS at our disposal! As you can see in <a href="https://gist.github.com/anonymoussprocket/00f673a1188ae5510d50e7c96f6c8a94">this GitHub gist</a>, both the actions above can be done with a few lines of code. As this is a twenty minute tour, we are not going to look at the specific of the code but here are the most relevant bits for your reference:
     </p>
-    <pre>      const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, fee, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
+    <pre>      
+      const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, fee, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
 
       const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, address, 10000, fee, '', freight, gas, entrypoint, parameter, TezosParameterFormat.Michelson);
     </pre>
     <p>
       Observe these lines use the settings we obtained from Nautilus Cloud:
     </p>
-    <pre>      const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
+    <pre>      
+      const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
       const conseilServer = { url: 'https://conseil-dev.cryptonomic-infra.tech:443', apiKey: 'ab682065-864a-4f11-bc77-0ef4e9493fa1', network: 'carthagenet' };
     </pre>
     <p>
