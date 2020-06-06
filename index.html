@@ -521,26 +521,26 @@
       ConseilJS is the Cryptonomic one-stop solution for all of your Tezos needs. Using this web library, you can build powerful web apps and DApps that can leverage the full depth of the Tezos platform.
     </p>
     <p>
-      As with any blockchain network, the individual units are accounts, which can send Tez (the Tezos unit of currency) to and fro. These transactions are logged on a distributed record of transactions (the Tezos blockchain) which is concurrently updated and managed by users on the network.
-    </p>
-    <p>
       Let’s start by querying some accounts.
     </p>
     <p>
-      The following tutorial’s code is in web based JS. It can be entered in a script tag, or a standalone ‘.js’ file called from an HTML page. Instead of using Node, it has been imported using the following CDN link. Just copy and paste this above where your JS is initialized, and you’ll be good to go!
+      The following tutorial’s code is in web based JS. It can be entered in a script tag, or a standalone ‘.js’ file called from an HTML page. Instead of using Node, it has been imported using the following CDN link <a href="https://cryptonomic.github.io/ConseilJS/#/?id=use-with-web">here</a>. Just copy and paste it above where your JS is initialized like this:
     </p>
     <pre>
       &lt;script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js" integrity="sha384-eSd4aru4A1k5ejohBE9T8uPo4P1TT6TTdnuO71HrrNr0pmZaF+C5/YQyYv0JNqhV" crossorigin="anonymous">&lt;/script>
     </pre>
     <p>
+      Keep in mind that the “integrity” section changes with every update, so if your code doesn’t work, get the latest CDN from the link above.
+    </p>
+    <p>
       For a more robust installation of ConseilJS, you can see the instructions <a href="https://cryptonomic.github.io/ConseilJS/#/?id=use-with-nodejs">here</a> for your language of choice (TypeScript or JavaScript).
     </p>
     <p>
-      We first need to visit <a href="https://nautilus.cloud/">Nautilus Cloud</a> in order to procure our ConseilJS API Keys and Tezos Node connection information for the appropriate Tezos Network (mainnet or testnet). If you’d rather host your own Tezos and Conseil node, you can do that too, but for simplicity, we recommend using our own hosted solutions.
+      We first need to visit <a href="https://nautilus.cloud/">Nautilus Cloud</a> in order to procure our ConseilJS API Keys and Tezos Node connection information for the appropriate Tezos Network (mainnet or testnet). If you’d rather host your own Tezos and <a href="https://github.com/Cryptonomic/Conseil/wiki">Conseil</a> node, you can do that too, but for simplicity, we recommend using our own hosted solutions.
     </p>
     <h4>Tutorial Setup:</h4>
     <p>
-      We can initialize the API Keys as follows:
+      We can initialize a connection to Conseil with our API Keys as follows:
     </p>
     <pre>
       const conseilServer = {
@@ -550,7 +550,13 @@
       };
     </pre>
     <p>
-      For the URL, put in the link to the Conseil Node. The Tezos Node will come in handy later. The ‘conseilServer’ object can now be used to authenticate different conseil queries and other operations.
+      For the URL, put in the link to the Conseil Node. We can also make another constant to store the Tezos Node address, so let’s do that now as well.
+    </p>
+    <pre>
+      const tezosNode = “https://tezos-prod.cryptonomic-infra.tech:443”
+    </pre>
+    <p>
+      The ‘conseilServer’ object can now be used to authenticate different Conseil queries, while the ‘tezosNode’ will come in handy for many different on-chain operations.
     </p>
     <h4>Conseil Accounts Query:</h4>
     <p>
@@ -560,16 +566,22 @@
       let query = conseiljs.ConseilQueryBuilder.blankQuery();
     </pre>
     <p>
-      If we want a specific account, we can add a predicate too, which takes in a ConseilOperator enum that we use to set different parameters to the query.
+      Then, we add on the fields we want to be part of the result set, in this case, the “balance” of the accounts, and their “account_id.” We can add as many fields as we want here, given that they are valid fields, but for now, let’s keep it simple.
     </p>
     <pre>
-      query = conseiljs.ConseilQueryBuilder.addPredicate(query, ‘account_id’, conseiljs.ConseilOperator.EQ, [“tz1gfArv665EUkSg2ojMBzcbfwuPxAvqPvjo”]);
+      query = conseiljs.ConseilQueryBuilder.addFields(query, 'balance', 'account_id');
     </pre>
     <p>
-      Here, we are mandating that the Account ID of the query is equal to the address given, using ‘conseiljs.ConseilOperator.EQ’. Feel free to replace the address there with your own address! You can find more information about the different ConseilOperators <a href="https://cryptonomic.github.io/ConseilJS/#/?id=addpredicatequery-field-operation-values-invert-group">here</a>.
+      If we want a specific account, we can add a predicate too, which allows us to query by different conditional operators. This takes in a ConseilOperator enum that we use to send different parameters to the query.
+    </p>
+    <pre>
+      query = conseiljs.ConseilQueryBuilder.addPredicate(query, 'account_id', conseiljs.ConseilOperator.EQ, ["tz1gfArv665EUkSg2ojMBzcbfwuPxAvqPvjo"]);
+    </pre>
+    <p>
+      Here, we are mandating that the account ID of the query is equal to the address given, using ‘conseiljs.ConseilOperator.EQ’. Feel free to replace the address there with your own address! You can find more information about the different ConseilOperators <a href="https://cryptonomic.github.io/ConseilJS/#/?id=addpredicatequery-field-operation-values-invert-group">here</a>.
     </p>
     <p>
-      If we leave this line out, we’d just get a bunch of accounts without any ordering. If we want ordered data, we need to specify which element(s) to order by, and whether it should be ascending or descending with the ConseilSortDirection enum.
+      If we leave this line out, we'd just get a bunch of accounts without any ordering. If we want ordered data, we need to specify which element(s) to order by, and whether it should be ascending or descending with the ConseilSortDirection enum.
     </p>
     <pre>
       query = conseiljs.ConseilQueryBuilder.addOrdering(query, "balance", conseiljs.ConseilSortDirection.DESC);
@@ -597,8 +609,21 @@
       result = await conseiljs.ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', query);
     </pre>
     <p>
-      The function returns an array of Objects which we can then use for whatever purpose we dream of, such as graphing or running further operations.
+      In order to make this asynchronous function work, let’s make an async wrapper function for the executeEntityQuery function that will print the results, and return them as well.
     </p>
+    <pre>
+      let execute = async function(query, entity) {
+          let result = await conseiljs.ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, entity, query);
+          console.log(result)
+          return result
+      }
+    </pre>
+    <p>
+      The function returns an array of objects which we can then use for whatever purpose we dream of, such as graphing or running further operations. We can use this function to execute the query as follows:
+    </p>
+    <pre>
+      result = execute(query, "accounts")
+    </pre>
     <p>
       Let’s take a step back here to think about what we’re doing. Each operation performed is included in a block on the chain. ConseilJS uses the API provided by Nautilus Cloud to access data indexed by Conseil. The queries that we run are powered by Cryptonomic’s servers that index block data and convert the blockchain into more accessible relational database tables. If this were to be done without ConseilJS, we’d have to connect to a TezosNode directly using the tezos client, and manually define and run all of these operations. This greatly simplifies the Tezos development process!
     </p>
@@ -611,14 +636,17 @@
     <p>
       The interface allows you to add fields, predicates, and even aggregations with ease. It works not only as a standalone querying tool, but also as a test board for making sure your queries work as intended before running them in ConseilJS.
     </p>
+    <p>
+      <a href="https://gist.github.com/PrathamRawat/ab16612268d2721911a88f5a8fabe98f">Here</a> is the complete Accounts Query code that you can play around with yourself!
+    </p>
     <h4>
       Querying Bakers:
     </h4>
     <p>
-      A common account operation is a delegation, which is essentially choosing a baker and offering them the stake from your Tez in return for their baking rewards.
+      A common account operation is a delegation, which is essentially choosing a baker and offering them the stake from your tez in return for their baking rewards.
     </p>
     <p>
-      This is the Tezos Liquid Proof of Stake (LPOS) model in action! Instead of a regular proof of stake model, where a user’s baking and voting rights come strictly from the amount of coin that they hold, the LPOS means that a user’s stake is liquid, allowing users to lend their stake to other bakers for a share of the baking profits.
+      This is the Tezos Liquid Proof of Stake (LPoS) model in action! Instead of a regular proof of stake model, where a user’s baking and voting rights come strictly from the amount of coin that they hold, the LPOS means that a user’s stake is liquid, allowing users to lend their stake to other bakers for a share of the baking profits.
     </p>
     <p>
       To query bakers that we might want to delegate to, we can query run another Conseil query. There are a number of ways to gauge a baker’s performance, such as their delegated balance (the higher results in a higher likelihood of baking a block), or the number of blocks that a baker has baked. Let’s work with the latter.
@@ -666,6 +694,12 @@
       );
     </pre>
     <p>
+      We can also call this in our wrapper function that we defined earlier:
+    </p>
+    <pre>
+      result = execute(query, "blocks")
+    </pre>
+    <p>
       The output is once again an array of objects:
     </p>
     <pre>
@@ -676,16 +710,29 @@
       {count_hash: "1726", baker: "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV"}]
     </pre>
     <p>
+      You can find the complete baker query <a href="https://gist.github.com/PrathamRawat/cb40f54127e44acd506681de9aacaca3">here</a>!
+    </p>
+    <p>
       Before we can delegate our stake though, we need to initialize some accounts.
     </p>
     <h4>
       Account Creation Operations:
     </h4>
     <p>
-      These queries can be used for their own standalone data analysis, or they can be used as the foundations for power dapps that interact with the chain and submit different operations. This makes coding a custom wallet app, multipurpose querying and transaction tool, or even your own GUI to a deployed smart contract is much easier with the ConseilJS interface.
+      These queries can be used for their own standalone data analysis, or they can be used as the foundations for powerful dapps that interact with the chain and submit different operations. This makes coding a custom wallet app, multipurpose querying and transaction tool, or even your own GUI to a deployed smart contract is much easier with the ConseilJS interface.
     </p>
     <p>
-      The foundations of all of these queries are account operations, such as transferring tez or delegating. If we want to run account operations of our own, we need to set up and activate our own account. Let’s use the <a href="https://faucet.tzalpha.net/">Testnet Faucet</a> to get loaded with some XTZ. ConseilJS makes it simple to set up the account (remember to update the keys and URL in the conseilServer object from Nautilus Cloud to Testnet!) We can copy the JSON file we get from the Faucet into our application, and send it to the TezosWalletUtil, using the unlockFundraiserIdentity() function.
+      The foundations of all of these queries are account operations, such as transferring tez or delegating. If we want to run account operations of our own, we need to set up and activate our own account. Let’s use the <a href="https://faucet.tzalpha.net/">Testnet Faucet</a> to get loaded with some XTZ. ConseilJS makes it simple to set up the account (remember to update the keys and URL in the conseilServer object from Mainnet to Testnet!)
+    </p>
+    <pre>
+      const conseilServer = {
+         url: 'https://conseil-dev.cryptonomic-infra.tech:443',
+         apiKey: <apikey>,
+         network: 'carthagenet'
+      };
+    </pre>
+    <p>
+      We can copy the JSON file we get from the Faucet into our application, and send it to the TezosWalletUtil, using the unlockFundraiserIdentity() function.
     </p>
     <pre>
       const keystore = await TezosWalletUtil.unlockFundraiserIdentity(
@@ -699,7 +746,7 @@
       This returns a keystore object, which contains our public and private key pair that we can use to authenticate many of the different operations we might want to accomplish. But not yet!
     </p>
     <p>
-      After this is done, we need to pass the keystore to another function to activate the account. The TezosNodeWriter can send an activation operation with the keys generated by the Wallet Util. This claims the associated account and allows us to use it and the tez that it stores.
+      After this is done, we need to pass the keystore to another function to activate the account. The TezosNodeWriter can send an activation operation with the keys generated by the Wallet Util. This claims the associated account and allows us to use it and the tez that it stores, and is necessary because these testnet accounts mimic the original Tezos fundraiser accounts, where activation served as a security measure for protecting people’s funds.
     </p>
     <pre>
       const result = await TezosNodeWriter.sendIdentityActivationOperation(
@@ -712,8 +759,11 @@
       We have one more step until we’re good to go! The account revelation “reveals” the account by publishing its public key on the blockchain, allowing other accounts to confirm transactions signed by our account’s public key. It’s another method of the TezosNodeWriter.
     </p>
     <pre>
-      const result = await TezosNodeWriter.sendKeyRevealOperation(tezosNode, keystore);
+      const revelationResult = await TezosNodeWriter.sendKeyRevealOperation(tezosNode, keystore);
     </pre>
+    <p>
+      The full code for activating testnet accounts downloaded from the faucet can be found <a href="https://gist.github.com/PrathamRawat/348e7c2acdfb14b3bcdae8923df9b203">here</a>!
+    </p>
     <p>
       If you need to work on transactions with real XTZ, ConseilJS can easily create and manage mainnet accounts for you! The process for creating a keystore for a mainnet account is just as simple.
     </p>
@@ -745,6 +795,9 @@
     </pre>
     <p>
       Now all that’s left is to wait for the pay period and collect our fresh tez!
+    </p>
+    <p>
+      The full code, with testnet account activation, the original baker query, and testnet delegation can be found <a href="https://gist.github.com/PrathamRawat/846bc9d56975b8196d66f879fa299d1a">here</a>!
     </p>
     <h4>
       Account Transaction Operation:
@@ -821,6 +874,9 @@
           query
       );
     </pre>
+    <p>
+      For the whole transaction code, check <a href="https://gist.github.com/PrathamRawat/9519c172a009b6511c2b8c673c1bac78">this</a> out!
+    </p>
     <p>
       That’s all for a quick welcome tour of ConseilJS! If you need help, please feel free to reach out to us via email, or our Riot channels. For more documentation of ConseilJS, check out our docs page <a href="https://cryptonomic.github.io/ConseilJS/#">here</a>. Good luck!
     </p>
