@@ -281,16 +281,36 @@
       import * as fs from 'fs';                 
 
       // These lines contain all of the ConseilJS imports needed for our code
-      import { TezosConseilClient, TezosWalletUtil, setLogLevel, KeyStore, Tzip7ReferenceTokenHelper } from 'conseiljs';        
+      import * as fs from 'fs';
+      import * as log from 'loglevel';
+      import fetch from 'node-fetch';  //Learn more about fetch at https://developers.google.com/web/ilt/pwa/working-with-the-fetch-api
+
+      import { registerFetch, registerLogger } from 'conseiljs';
+      import { TezosConseilClient, KeyStore, Tzip7ReferenceTokenHelper, Signer, TezosMessageUtils,TezosNodeReader, TezosNodeWriter, KeyStoreType } from 'conseiljs';
       import { ConseilQueryBuilder, ConseilOperator, ConseilDataClient } from 'conseiljs';
+      import { KeyStoreUtils, SoftSigner} from 'conseiljs-softsigner';
+
     </pre>
+   <p>
+  Below lines of code helps us setup debugging for our contract  
+  </p>
+  <pre>
+  const logger = log.getLogger('conseiljs'); // Using the getLogger() method lets you create a separate logger for each part of your application with its own logging level.
+  logger.setLevel('debug', false);           //This disables all logging below the given level, so that after a log.setLevel("warn") call log.warn("something") or log.error("something") will output messages, but log.info("something") will not. 
+                                             //learn more at http://www.lib4dev.in/info/pimterry/loglevel/8976707             
+  registerLogger(logger);                    //Used to register logger variable
+  registerFetch(fetch);                      //Used to register fetch 
+
+  </pre>
     <p>
       Let's set up some constants needed for connecting and deploying to the blockchain. All of this information can be found on Nautilus Cloud! We'll need the URL of a tezos node and the URL of the Conseil Server (along with our API key to gain access). Using these, we can define these constants:
     </p>
     <pre>
-      const tezosNode = '...';                                                        // You can get this from Nautilus Cloud, make sure you take the testnet one!
-      const conseilServer = { url: '...', apiKey: '...', network: 'carthagenet' };    // Enter both the testnet Conseil Node URL and API Key here!
-      const networkBlockTime = 30 + 1;                                                // Because testnet's block time is 30 seconds, we wait 31 seconds before checking for a block update
+    const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';               //Tezos testnet node
+    const conseilServer = { url: 'https://conseil-dev.cryptonomic-infra.tech:443',  //Conseil testnet node
+                            apiKey: '6bfc2097-39f8-4020-8a3d-3d9d026e8c8d',         //API key
+                            network: 'delphinet' };                                 //Tesnet version
+    const networkBlockTime = 30 + 1;
     </pre>
     <p>
       Make sure your links above go to <strong>port 443</strong>! The URL should end with ':443', if it doesn't, add that to the URL for it to work!
@@ -353,27 +373,99 @@
                 "email": "cvhrucwz.gkqntnnd@tezos.example.org"
               }
     </pre>
+  <p>
+  Make sure that after you download them you put them in the same project where you have your typescript file.
+  </p>
     <p>
-      With these accounts ready, we can get started directly in ConseilJS! With the files that we downloaded earlier, we don't need to manually enter data like we did in the previous tutorial. We can import the FileSystem module (imported before as fs) to quickly load and parse the JSON files into an object as seen below. Now, using the TezosWalletUtil, which was imported from ConseilJS, we can feed in the values from the JSON file to initialize the account from the file using the unlockFundraiserIdentity() function.
+      With these accounts ready, we can get started directly in ConseilJS! With the files that we downloaded earlier, we don't need to manually enter data like we did in the previous tutorial. We can import the FileSystem module (imported before as fs) to quickly load and parse the JSON files into an object as seen below. Now, using the KeyStoreUtils, which was imported from ConseilJS, we can feed in the values from the JSON file to initialize the account from the file using the restoreIdentityFromFundraiser() function.
     </p>
     <pre>
-      async function initAccount(account: string): Promise<KeyStore> {
-        
-        console.log(" ~~ initAccount");
-        console.log(`loading ${account} faucet file`);
+    async function initAccount(account: string): Promise<KeyStore> {
+    
+    //In this function we basically take our faucet accounts that we get from https://faucet.tzalpha.net/
+    //and import the downloaded file's content into faucetAccount variable.
+    //Then we create keystore(set of keys) using the restoreIdentityfromfundraiser function in Keystoreutils module
 
-        const faucetAccount = JSON.parse(fs.readFileSync(`${account}.json`, 'utf8'));
-
-        const keystore = await TezosWalletUtil.unlockFundraiserIdentity(faucetAccount['mnemonic'].join(' '), faucetAccount['email'], faucetAccount['password'], faucetAccount['pkh']);
-        console.log(`public key: ${keystore.publicKey}`);
-        console.log(`secret key: ${keystore.privateKey}`);
-        console.log(`account hash: ${keystore.publicKeyHash}`);
-
-        return keystore;
-      }
+    console.log('~~ initAccount');
+    console.log(`loading ${account} faucet file`);
+    const faucetAccount = JSON.parse(fs.readFileSync(`${account}.json`, 'utf8'));
+    const keystore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+    
+    
+    return keystore;
+    
+    }
     </pre>
     <p>
-      Moving on, we start getting to the real meat of the code. Let's make an async run function that will handle all of the necessary code:
+    Let's hop on to the next part of code where we activate the faucet accounts we have created to get them into use. Note : this function is required only when we are using faucet accounts and we don't really require the activation function while we operate real accounts using smart contracts.
+    </p>
+    <pre>
+    async function activateAccount(account : string) {
+    
+    //Every faucet account that we create needs to be activated once after which we can use it efficiently
+    //We do that in this function using sendIdentityActivationOperation function in TezosNodeWriter module
+
+    console.log('~~ initAccount');
+    console.log(`loading ${account} faucet file`);
+    const faucetAccount = JSON.parse(fs.readFileSync(`${account}.json`, 'utf8'));
+    const keystore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+    
+    
+    console.log('~~ activateAccount');
+    let signer : Signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keystore.secretKey, 'edsk'));
+    const result = await TezosNodeWriter.sendIdentityActivationOperation(tezosNode, signer, keystore, faucetAccount.secret);
+    console.log(`Injected operation group id ${result.operationGroupID}`)
+    }
+    </pre>
+    <p>
+    Next part of the code is where we reveal our faucet accounts before we use them in our smart contract.
+    </p>
+    <pre>
+    async function revealAccount(keystore:KeyStore) {
+
+    //Every faucet account  needs to be needs to be once  every time we run our code
+    //We do that in this function using sendKeyRevealOperation function in TezosNodeWriter module
+    // isManagerKeyRevealedForAccount function verifies if the account has already sent a reveal operation.
+
+    let signer : Signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keystore.secretKey, 'edsk'));
+    console.log(`~~ revealAccount`);
+    if (await TezosNodeReader.isManagerKeyRevealedForAccount(tezosNode, keystore.publicKeyHash)) return;
+    const nodeResult = await TezosNodeWriter.sendKeyRevealOperation(tezosNode,signer,keystore);
+    let groupid = clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    console.log(`Injected reveal operation with ${groupid}`);
+    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, networkBlockTime);
+    console.log(`Revealed account at ${conseilResult.source}`);
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    }
+    </pre>
+    <p>
+    Further down now we have the stat operation function to confirm  the appearance of our operation in our smartcontract on the blockchain.
+    </p>
+    <pre>
+    async function statOperation(groupid: string){
+
+    //The various send functions return an operation group hash which can be passed to 
+    //TezosConseilClient.awaitOperationConfirmation(...) to await its appearance on the chain.
+
+    const result = await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 7, networkBlockTime);
+    
+    if (result['status'] === 'failed') {
+        console.log(`${result['kind']} ${groupid} ${result['status']} at block ${result['block_level']}`);
+    } else if (result['status'] === 'applied') {
+        let message = `${result['kind']} ${groupid} included in block ${result['block_level']} for ${result['consumed_gas']}g and ${result['paid_storage_size_diff']}f`
+        
+        if ('originated_contracts' in result && result['originated_contracts'] != null && result['originated_contracts'].length > 0) {
+            message += ` new contract at ${result['originated_contracts']}`;
+        }
+        
+        console.log(message);
+    } else {
+        console.log(JSON.stringify(result));
+    }
+    }
+    </pre>
+    <p>
+      Moving on, we start getting to the real meat of the code. Let's make an async run function that will handle all of the necessary code.The entire code in this function is divided into two steps. Step 1 is where we uncomment our first part of two and run the contract to activate our faucet accounts and then we comment it out again because the faucet accounts require to be activated only once after creation.After that we can uncomment the code in next step which is the code in the rest of run function and run it.
     </p>
     <pre>
       async function run() {
@@ -384,26 +476,40 @@
       Inside the function, let's start by setting up some more constants. We need to have a contract originator and issuer, which will come from the two files we downloaded from the faucet. Set these two constants to be the names of the files you downloaded, which also happen to be the account IDs. Eventually, we will pass this string to the initAccount() function we wrote before to set up those accounts. The originator is the account which will deploy the smart contract, while the issuer is the account that will control the issuing of fungible tokens.
     </p>
     <pre>
-      const originator = "tz1VXhEA5CiVWeyQP4FomBKTFRC1cmsBWZcY";
-      const issuer = "tz1XthtNSi8tdnizeEDULvpzx7mxvverYK4b";
-    </pre>
+        const originator = 'tz1NXcSs6JzYMgVZSsHseDA3TxpGE7HsWwBn'; //publickeyhash(pkh) of the faucet accounts 
+        const issuer = 'tz1iD8Sbx8yugYkX8Z9LpoRSEucU97nsqRqx';     // we made
+</pre>
+<p>
+Now we will run the activateaccount function for the faucet accounts of originator and issuer respectively.
+</p>
+<pre>
+ //STEP 1 : UNCOMMENT BELOW TWO LINES AND BUILD AND RUN AND THEN COMMENT IT AGAIN AND MOVE TO NEXT STEP
+    // await activateAccount(originator);             
+    // await activateAccount(issuer);
+    
+</pre>
     <p>
+      This is where our step 2 starts and we can uncomment our rest of code in run function and run the smart contract.
       We also need to define some temporary variables, which we will use throughout the code to store outputs and other data. We can store these as follows, and then initialize the originator account, which we'll need to use to originate the contract. We can store its data in the "keystore" variable so we can access it at any time.
     </p>
     <pre>
-      let groupid ='';
-      let contractAddress = '';
-      let mapid = 0;
+    //STEP 2 :YOU CAN NOW UNCOMMENT THE REST OF THE CODE IN RUN() BELOW BUILD AND RUN IT
+    let groupid ='';
+    let contractAddress = '';
+    let mapid = 0;
 
-      let keystore = await initAccount(originator);
+    let keystore = await initAccount(originator);
+    await revealAccount(keystore);
     </pre>
     <p>
       Now with all of this set up, let's deploy the contract! ConseilJS has a module called Tzip7ReferenceTokenHelper (referred to henceforth as TokenHelper), which gets its name from the <a href="https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-7">TZIP-7 proposal</a> and the <a href="https://gitlab.com/tzip/tzip/-/blob/master/proposals/tzip-7/ManagedLedger.tz">reference implementation</a> of the token contract in that proposal. The module can be used to deploy and invoke that contract easily! The deployContract() function gives us flexibility to set essential features of the contract, like the supply. We can store the output in a groupid variable to reference the operation later.
     </p>
     <pre>
-                                                              //                                                           supply
-      groupid = await Tzip7ReferenceTokenHelper.deployContract(tezosNode, keystore, 100_000, keystore.publicKeyHash, true, 0);
-    </pre>
+        let signer: Signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keystore.secretKey, 'edsk'));
+
+                                                              //   server  signer  keystore   fee         administrator    pause  supply
+        groupid = await Tzip7ReferenceTokenHelper.deployContract(tezosNode,signer, keystore, 100_000, keystore.publicKeyHash, true, 0);
+</pre>
     <p>
       We should make sure the operation succeeded, using the awaitOperationConfirmation() method of the the TezosTokenClient class, and passing in the groupid from the previous call. This will return some data about the completed operation, which we can then parse to get the contractAddress.
     </p>
@@ -430,40 +536,41 @@
       mapid = simplestorage.mapid;
     </pre>
     <p>
-      This is all good, we have a contract deployed. But let's say we want to transfer the "ownership" of the contract to a different account. Say, if we coded the contract for someone else, that account should have control. Luckily for us, this is no problem in ConseilJS! Using the setAdministrator() function of the TokenHelper, we can quickly perform this operation.
+      This is all good, we have a contract deployed. But let's say we want to transfer the "ownership" of the contract to a different account. Say, if we coded the contract for someone else, that account should have control. Luckily for us, this is no problem in ConseilJS! Using the getadministrator() and setAdministrator() function of the TokenHelper, we can quickly perform this operation.
     </p>
     <pre>
-      console.log(`token administrator: ${await Tzip7ReferenceTokenHelper.getAdministrator(tezosNode, contractAddress)}`);
-                                                                //                                             fee      gas      freight
-      groupid = await Tzip7ReferenceTokenHelper.setAdministrator(tezosNode, keystore, contractAddress, issuer, 100_000, 125_000, 1_000);
-
-      console.log(`token administrator: ${await Tzip7ReferenceTokenHelper.getAdministrator(tezosNode, contractAddress)}`);
+    console.log(`token administrator: ${await Tzip7ReferenceTokenHelper.getAdministrator(tezosNode, contractAddress)}`);
+    groupid = await Tzip7ReferenceTokenHelper.setAdministrator(tezosNode,signer, keystore, contractAddress, issuer, 100_000, 125_000, 1_000);
+    await statOperation(groupid);
+    console.log(`token administrator: ${await Tzip7ReferenceTokenHelper.getAdministrator(tezosNode, contractAddress)}`);
     </pre>
     <p>
-      Now if we want to perform more contract operations, we need to initialize the issuer account, just as we did before with the originator.
+      Now if we want to perform more contract operations, we need to initialize and reveal the issuer account, just as we did before with the originator.
     </p>
     <pre>
       keystore = await initAccount(issuer);
-    </pre>
+      await revealAccount(keystore);
+  </pre>
     <p>
       Now the fun begins! With the TokenHelper, we can quickly and easily perform different token actions with the contract we deployed, without having to go through the complex and tedious contract entrypoints. To start, now that we have the issuer set up, we need to activate the ledger, which is the smart contract functionality of making and recording transactions. When we initially deployed the contract, we set it to "paused" instead of "active" so that we could get the contract set up before we run it. Now that it’s ready, we can activate it to use it’s functionality! The following code uses the TokenHelper to activate the contract so we can start calling it, while the surrounding log statements print whether we are active or not.
     </p>
     <pre>
-      console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress) === true) ? 'paused' : 'active' }`);
-                                                              //                                     fee     gas      freight
-      groupid = await Tzip7ReferenceTokenHelper.activateLedger(tezosNode, keystore, contractAddress, 50_000, 125_000, 100);
-      console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress)) ? 'paused' : 'active' }`);
+    signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keystore.secretKey, 'edsk'));
+    console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress) === true) ? 'paused' : 'active' }`);
+    groupid = await Tzip7ReferenceTokenHelper.activateLedger(tezosNode,signer, keystore, contractAddress, 50_000, 125_000, 100);
+    await statOperation(groupid);
+    console.log(`token ${(await Tzip7ReferenceTokenHelper.getPaused(tezosNode, contractAddress)) ? 'paused' : 'active' }`);
     </pre>
     <p>
       But now we have an activated ledger without any tokens yet! Once again, TokenHelper comes to the rescue as we can mint new tokens easily using the mint() function. The log statements output the amounts of coin in circulation, while the mint statement we are calling puts a whopping 2 trillion tokens into circulation, US Federal Reserve style.
     </p>
     <pre>
-      console.log(`current supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
-                                                    //                                     fee             amount         gas      freight 
-      groupid = await Tzip7ReferenceTokenHelper.mint(tezosNode, keystore, contractAddress, 50_000, issuer, 2_000_000_000_000, 125_000, 100);
-      console.log(`new supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
-      console.log(`${issuer} balance: ${await Tzip7ReferenceTokenHelper.getAccountBalance(tezosNode, mapid, issuer)}`);
-    </pre>
+    console.log(`current supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
+    groupid = await Tzip7ReferenceTokenHelper.mint(tezosNode,signer, keystore, contractAddress, 50_000, issuer, 1_000_000_000, 125_000, 100);
+    await statOperation(groupid);
+    console.log(`new supply: ${await Tzip7ReferenceTokenHelper.getTokenSupply(tezosNode, contractAddress)}`);
+    console.log(`${issuer} balance: ${await Tzip7ReferenceTokenHelper.getAccountBalance(tezosNode, mapid, issuer)}`);
+ </pre>
     <p>
       Now that we have a billion tokens, let's spread the love and airdrop some to other accounts. Let's start by generating a Conseil Query to get 30 large testnet accounts. We first initialize a blank Query, and then add different fields and predicates to build an increasingly complex query. Just a warning, this script will take a while to run!
     </p>
@@ -482,8 +589,8 @@
     </p>
     <pre>
       for (let i = 0; i < largeAccounts.length; i++) {
-                                                                 //                                     fee     source                  destination       amount gas      freight
-        groupid = await Tzip7ReferenceTokenHelper.transferBalance(tezosNode, keystore, contractAddress, 50_000, keystore.publicKeyHash, largeAccounts[i], 1_000, 125_000, 100);
+                                                                       //                                      fee     source                  destination       amount gas      freight
+        groupid = await Tzip7ReferenceTokenHelper.transferBalance(tezosNode,signer, keystore, contractAddress, 50_000, keystore.publicKeyHash, largeAccounts[i], 1_000, 125_000, 100);
         console.log(`balance transfer to "${largeAccounts[i]}"`);
       }
     </pre>
@@ -504,8 +611,8 @@
 
       for (let i = 0; i < largeAccounts.length; i++) {
           for (let j = 3 * i, k = 3 * (i + 1); j < k; j++) {
-              groupid = await Tzip7ReferenceTokenHelper.approveBalance(tezosNode, keystore, contractAddress, 50_000, smallAccounts[j], 100, 125_000, 100);
-              console.log(`approve allowance for "${smallAccounts[j]}"`);
+                     groupid = await Tzip7ReferenceTokenHelper.approveBalance(tezosNode,signer, keystore, contractAddress, 50_000, smallAccounts[j], 100, 125_000, 100);
+                     console.log(`approve allowance for "${smallAccounts[j]}"`);
           }
       }
 
@@ -516,7 +623,7 @@
       Those last two log statements let us find out how many tokens we put into circulation and our (the issuer's) remaining token balance. Isn't creating a currency fun!
     </p>
     <p>
-      To look at the code in its entirety, checkout out this <a href="https://gist.github.com/anonymoussprocket/2df333da147b57510b1f78a9c930caab">gist</a> and the corresponding Medium <a href="https://medium.com/the-cryptonomic-aperiodical/tezos-is-now-an-asset-tokenization-platform-4d88ded4e9c">article</a>. Once again, feel free to reach out for any assistance whatsoever, and see our Documentation for a more in-depth look at the products used. Happy Hacking!
+      To look at the code in its entirety, checkout out this <a href="https://gist.github.com/Nike682631/d3ebec6e4ec8953e247b7a19d6a69e03">gist</a> and the corresponding Medium <a href="https://medium.com/the-cryptonomic-aperiodical/tezos-is-now-an-asset-tokenization-platform-4d88ded4e9c">article</a>. Once again, feel free to reach out for any assistance whatsoever, and see our Documentation for a more in-depth look at the products used. Happy Hacking!
     </p>
     <h3><a name="tutorials-conseil">Analyzing blockchain data using Conseil</a></h3>
     <p>
@@ -734,7 +841,7 @@
       const conseilServer = {
          url: 'https://conseil-dev.cryptonomic-infra.tech:443',
          apiKey: <apikey>,
-         network: 'carthagenet'
+         network: 'dephinet'
       };
     </pre>
     <p>
